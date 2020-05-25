@@ -24,6 +24,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
         self.register_listener('import_begin', self.before_import)
         self.register_listener('import', self.after_import)
         self.register_listener('after_write', self.item_changed)
+        self.register_listener('write', self.check_par2)
         self.build_args()
         if not self.check_command():
             self._log.error(u'cannot find par2 program. Try setting its path in the config')
@@ -58,6 +59,11 @@ class MusicIntegrityPlugin(BeetsPlugin):
             par2_file_path = os.path.join(dirname, par2_filename)
             self.delete_par2_file(par2_file_path)
 
+    def check_par2(self, item, path, tags):
+        output = self.process_file(item, 'repair', False)
+        if output.returncode != 0:
+            raise library.FileOperationError(item.path, 'file could not be repaired: {0}', output.stderr)
+
     def process_file(self, item, action, delete_par2_files):
         dirname = os.path.dirname(item.path)
         filename = os.path.basename(item.path)
@@ -72,9 +78,9 @@ class MusicIntegrityPlugin(BeetsPlugin):
             command_line += [item.path]
 
         if os.path.isfile(par2_file_path + b'.par2') and delete_par2_files and action == 'create':
-            result = self.process_file(item, 'repair', True)
-            if result.returncode == 0:
-                self.delete_par2_file(par2_file_path)
+            # result = self.process_file(item, 'repair', True)
+            # if result.returncode == 0:
+            self.delete_par2_file(par2_file_path)
 
         output = subprocess.run(command_line,
                 stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
@@ -139,6 +145,6 @@ class MusicIntegrityPlugin(BeetsPlugin):
         for file_path in file_list:
             try:
                 os.remove(file_path)
-                self._log.debug('removed old par file: {0}', file_path)
+                self._log.debug(u'removed old par file: {0}', file_path)
             except:
                 self._log.error(u'could not remove file {0}', file_path)
