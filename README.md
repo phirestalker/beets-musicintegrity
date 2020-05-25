@@ -17,7 +17,7 @@ To use this plugin you must add it to the plugins list in your config.yaml.
 This plugin will automatically create a par2 set for each music file on import. It will also generate a new set for a file when it is changed by beets or other plugins. Before each file is changed it will be checked for errors and repaired. If the repair fails it will stop the operation on that file.
 
 The plugin has four commands
-* par2create: Creates a par2 set for the files given by query
-* par2verify: Runs a par2 verify on files given by query (added for completeness as repair will also do a verify first)
-* par2repair: Runs a par2 repair on files given by query
+* par2create: Creates a par2 set for the files returned by query
+* par2verify: Runs a par2 verify on files returned by query (added for completeness as repair will also do a verify first)
+* par2repair: Runs a par2 repair on files returned by query
 * par2delete: Removes all par2 sets for files returned by query
