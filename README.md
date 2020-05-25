@@ -6,10 +6,9 @@ A beets plugin that allows you to create par2 sets for your music files
 3. change to the directory containing the files
 4. type: python3 setup.py install
 # Configuration
-par2_exe:		Set the location of your par2 executable. Tries to find it in path by default
-recovery:		Set the percentage of the recovery files (default is 15%)
-memory:			Set the amount of memory par2 will use (default is 1024 MB or 1 GB)
-extra_args:		A list of other commandline options for par2 creation. Note: -q is already used
+    par2_exe:		Set the location of your par2 executable. Tries to find it in path by default
+    recovery:		Set the percentage of the recovery files (default is 15%)
+    extra_args:		A list of other commandline options for par2 creation. Note: -q is already used
 			For a list of acceptable values see: http://manpages.org/par2
 			enter as a list like ['-u', '-l']
 # Usage
