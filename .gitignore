@@ -1,0 +1,12 @@
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+*~
+
+# Python files #
+#################
+build/
+dist/
+*.egg-info/
