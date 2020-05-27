@@ -28,8 +28,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
         self.register_listener('album_imported', self.on_import)
         self.build_args()
         if not self.check_command():
-            self._log.error(u'cannot find par2 program. Try setting its path in the config')
-
+            raise ui.UserError(u'cannot find par2 program. Try setting its path in the config')
 
     def commands(self):
         create_par_command = Subcommand('par2create', help='Create par2 sets for the tracks returned by the query')
@@ -43,15 +42,11 @@ class MusicIntegrityPlugin(BeetsPlugin):
         return [create_par_command, verify_par_command, repair_par_command, delete_par_command]
 
     def create_par2(self, lib, opts, args):
-        if not self.check_command():
-            return
         query = ui.decargs(args)
         for item in lib.items(query):
             self.process_file(item, 'create', False)
 
     def delete_par2(self, lib, opts, args):
-        if not self.check_command():
-            return
         query = ui.decargs(args)
         for item in lib.items(query):
             dirname = os.path.dirname(item.path)
@@ -110,14 +105,10 @@ class MusicIntegrityPlugin(BeetsPlugin):
         self.write = True
 
     def on_import(self, lib, album):
-        if not self.check_command():
-            return
         for item in album.items():
             self.process_file(item, 'create', True)
 
     def item_changed(self, item):
-        if not self.check_command():
-            return
         if not self.write:
             return
         self.process_file(item, 'create', True)
