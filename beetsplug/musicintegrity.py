@@ -11,7 +11,7 @@ import re
 class MusicIntegrityPlugin(BeetsPlugin):
     def __init__(self):
         super(MusicIntegrityPlugin, self).__init__()
-        self.import_stages = [self.on_import]
+        # self.import_stages = [self.on_import]
         self.config.add({
             'par2_exe': '',
             'recovery': '15',
@@ -25,6 +25,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
         self.register_listener('import', self.after_import)
         self.register_listener('after_write', self.item_changed)
         self.register_listener('write', self.check_par2)
+        self.register_listener('album_imported', self.on_import)
         self.build_args()
         if not self.check_command():
             self._log.error(u'cannot find par2 program. Try setting its path in the config')
@@ -61,8 +62,8 @@ class MusicIntegrityPlugin(BeetsPlugin):
 
     def check_par2(self, item, path, tags):
         output = self.process_file(item, 'repair', False)
-        if output.returncode != 0:
-            raise library.FileOperationError(item.path, 'file could not be repaired: {0}', output.stderr)
+        if output and output.returncode != 0:
+            raise library.FileOperationError(item.path, 'file could not be repaired: ' + output.stderr)
 
     def process_file(self, item, action, delete_par2_files):
         dirname = os.path.dirname(item.path)
@@ -81,12 +82,13 @@ class MusicIntegrityPlugin(BeetsPlugin):
             # result = self.process_file(item, 'repair', True)
             # if result.returncode == 0:
             self.delete_par2_file(par2_file_path)
-
-        output = subprocess.run(command_line,
+        output = {}
+        if action == 'create' or os.path.isfile(par2_file_path + b'.par2'):
+            output = subprocess.run(command_line,
                 stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-        if output.returncode != 0:
-            self._log.error(u'par2 command returned with errors: {0}.\nFor file: {1}', output.stderr, item.path)
-        self._log.debug('{0} par2 output: {1}', item.path, output.stdout)
+            if output.returncode != 0:
+                self._log.error(u'par2 command returned with errors: {0}.\nFor file: {1}', output.stderr, item.path)
+            self._log.debug('{0} par2 output: {1}', item.path, output.stdout)
         return output
 
     def verify_par2(self, lib, opts, args):
@@ -107,10 +109,10 @@ class MusicIntegrityPlugin(BeetsPlugin):
     def after_import(self, lib, paths):
         self.write = True
 
-    def on_import(self, session, task):
+    def on_import(self, lib, album):
         if not self.check_command():
             return
-        for item in task.imported_items():
+        for item in album.items():
             self.process_file(item, 'create', True)
 
     def item_changed(self, item):
