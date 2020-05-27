@@ -26,6 +26,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
         self.register_listener('after_write', self.item_changed)
         self.register_listener('write', self.check_par2)
         self.register_listener('album_imported', self.on_import)
+        self.register_listener('item_removed', self.file_removed)
         self.build_args()
         if not self.check_command():
             raise ui.UserError(u'cannot find par2 program. Try setting its path in the config')
@@ -49,11 +50,19 @@ class MusicIntegrityPlugin(BeetsPlugin):
     def delete_par2(self, lib, opts, args):
         query = ui.decargs(args)
         for item in lib.items(query):
-            dirname = os.path.dirname(item.path)
-            filename = os.path.basename(item.path)
-            par2_filename = self.get_par2_filename(filename)
-            par2_file_path = os.path.join(dirname, par2_filename)
+            dirname, filename, par2_filename, par2_file_path = self.get_paths(item)
             self.delete_par2_file(par2_file_path)
+
+    def file_removed(self, item):
+        dirname, filename, par2_filename, par2_file_path = self.get_paths(item)
+        self.delete_par2_file(par2_file_path)
+
+    def get_paths(self, item):
+        dirname = os.path.dirname(item.path)
+        filename = os.path.basename(item.path)
+        par2_filename = self.get_par2_filename(filename)
+        par2_file_path = os.path.join(dirname, par2_filename)
+        return dirname, filename, par2_filename, par2_file_path
 
     def check_par2(self, item, path, tags):
         output = self.process_file(item, 'repair', False)
@@ -61,10 +70,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
             raise library.FileOperationError(item.path, 'file could not be repaired: ' + output.stderr)
 
     def process_file(self, item, action, delete_par2_files):
-        dirname = os.path.dirname(item.path)
-        filename = os.path.basename(item.path)
-        par2_filename = self.get_par2_filename(filename)
-        par2_file_path = os.path.join(dirname, par2_filename)
+        dirname, filename, par2_filename, par2_file_path = self.get_paths(item)
 
         command_line = [self.par2_exe, action]
         if action == 'create':
@@ -74,8 +80,6 @@ class MusicIntegrityPlugin(BeetsPlugin):
             command_line += [item.path]
 
         if os.path.isfile(par2_file_path + b'.par2') and delete_par2_files and action == 'create':
-            # result = self.process_file(item, 'repair', True)
-            # if result.returncode == 0:
             self.delete_par2_file(par2_file_path)
         output = {}
         if action == 'create' or os.path.isfile(par2_file_path + b'.par2'):
