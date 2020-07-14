@@ -93,7 +93,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
     def verify_par2(self, lib, opts, args):
         query = ui.decargs(args)
         for item in lib.items(query):
-            self.process_file(item, 'verify', False)
+            output = self.process_file(item, 'verify', False)
             if output.returncode != 0:
                 self.process_file(itme, 'repair', False)
 
