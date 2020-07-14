@@ -94,6 +94,8 @@ class MusicIntegrityPlugin(BeetsPlugin):
         query = ui.decargs(args)
         for item in lib.items(query):
             self.process_file(item, 'verify', False)
+            if output.returncode != 0:
+                self.process_file(itme, 'repair', False)
 
     def repair_par2(self, lib, opts, args):
         query = ui.decargs(args)
