@@ -25,7 +25,8 @@ class MusicIntegrityPlugin(BeetsPlugin):
         self.register_listener('import', self.after_import)
         self.register_listener('after_write', self.item_changed)
         self.register_listener('write', self.check_par2)
-        self.register_listener('album_imported', self.on_import)
+        self.register_listener('album_imported', self.on_import_album)
+        self.register_listener('item_imported', self.on_import_item)
         self.register_listener('item_removed', self.file_removed)
         self.build_args()
         if not self.check_command():
@@ -110,9 +111,12 @@ class MusicIntegrityPlugin(BeetsPlugin):
     def after_import(self, lib, paths):
         self.write = True
 
-    def on_import(self, lib, album):
+    def on_import_album(self, lib, album):
         for item in album.items():
             self.process_file(item, 'create', True)
+
+    def on_import_item(self, lib, item):
+        self.process_file(item, 'create', True)
 
     def item_changed(self, item):
         if not self.write:
