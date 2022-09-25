@@ -121,6 +121,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
     def item_changed(self, item):
         if not self.write:
             return
+        self.check_par2(item, "", "")
         self.process_file(item, 'create', True)
 
     # make sure the par2 command can be found
