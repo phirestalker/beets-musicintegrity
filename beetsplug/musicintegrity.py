@@ -13,6 +13,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
         super(MusicIntegrityPlugin, self).__init__()
         # self.import_stages = [self.on_import]
         self.config.add({
+            'enabled': True,
             'par2_exe': '',
             'recovery': '15',
             'memory': '1024',
