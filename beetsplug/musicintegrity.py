@@ -121,9 +121,9 @@ class MusicIntegrityPlugin(BeetsPlugin):
         self.process_file(item, 'create', True)
 
     def item_changed(self, item):
-        if not self.write or not self.enabled:
+        if not self.write or not self.config['enabled']:
             return
-        if self.check:
+        if self.config['check']:
             self.check_par2(item, "", "")
         self.process_file(item, 'create', True)
 
