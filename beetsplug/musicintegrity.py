@@ -14,6 +14,7 @@ class MusicIntegrityPlugin(BeetsPlugin):
         # self.import_stages = [self.on_import]
         self.config.add({
             'enabled': True,
+            'check': True,
             'par2_exe': '',
             'recovery': '15',
             'memory': '1024',
@@ -122,7 +123,8 @@ class MusicIntegrityPlugin(BeetsPlugin):
     def item_changed(self, item):
         if not self.write or not self.enabled:
             return
-        self.check_par2(item, "", "")
+        if self.check:
+            self.check_par2(item, "", "")
         self.process_file(item, 'create', True)
 
     # make sure the par2 command can be found
