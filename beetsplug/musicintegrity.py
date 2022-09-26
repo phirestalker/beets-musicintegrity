@@ -68,9 +68,10 @@ class MusicIntegrityPlugin(BeetsPlugin):
         return dirname, filename, par2_filename, par2_file_path
 
     def check_par2(self, item, path, tags):
-        output = self.process_file(item, 'repair', False)
-        if output and output.returncode != 0:
-            raise library.FileOperationError(item.path, 'file could not be repaired: ' + output.stderr)
+        if self.config['check']:
+            output = self.process_file(item, 'repair', False)
+            if output and output.returncode != 0:
+                raise library.FileOperationError(item.path, 'file could not be repaired: ' + output.stderr)
 
     def process_file(self, item, action, delete_par2_files):
         dirname, filename, par2_filename, par2_file_path = self.get_paths(item)
@@ -123,8 +124,6 @@ class MusicIntegrityPlugin(BeetsPlugin):
     def item_changed(self, item):
         if not self.write or not self.config['enabled']:
             return
-        if self.config['check']:
-            self.check_par2(item, "", "")
         self.process_file(item, 'create', True)
 
     # make sure the par2 command can be found
